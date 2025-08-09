@@ -2,3 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-bg: #F4F3EF;
+  --color-accent: #B89F73;
+}
