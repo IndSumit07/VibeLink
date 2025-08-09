@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-bg: #F4F3EF;
-  --color-accent: #B89F73;
+
+*{
+    font-family: "Outfit", sans-serif;
+    color: white;
+}
+
+:root{
+    --gold: #B89F73
 }
