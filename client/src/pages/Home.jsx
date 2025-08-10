@@ -1,8 +1,13 @@
 import React from 'react'
+import Navbar from '../components/Navbar'
+import LandingPage from '../components/LandingPage'
 
 const Home = () => {
   return (
-    <div className='text-5xl text-black'>Welcome To Landing Page</div>
+    <div className='w-full h-[100vh]'>
+      <Navbar/>
+      <LandingPage/>
+    </div>
   )
 }
 
