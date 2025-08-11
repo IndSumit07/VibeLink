@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate,  } from 'react-router-dom';
+import { AppContent } from '../context/AppContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -14,6 +17,40 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+
+  const {userData, backendUrl, setUserData, setIsLoggedIn} = useContext(AppContent);
+console.log(userData);
+
+const logout = async()=>{
+  try{
+    axios.defaults.withCredentials=true;
+    const {data} = await axios.post(backendUrl + "/api/auth/logout")
+
+    data.success && setIsLoggedIn(false)
+    data.success && setUserData(false)
+
+    navigate("/")
+  }catch(error){
+    toast.error(error.message)
+  }
+}
+
+  const sendVerifyOtp = async () => {
+    try {
+      axios.defaults.withCredentials=true;
+
+      const {data} = await axios.post(backendUrl + "/api/auth/send-verify-otp");
+
+      if(data.success){
+        navigate("/email-verify");
+        toast.success(data.message)
+      }else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Features', path: '/features' },
@@ -66,8 +103,21 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Login/Signup Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+            {userData ? <div className='w-8 h-8 flex justify-center items-center rounded-full bg-black text-white relative group cursor-pointer'>
+              {userData.fullname[0].toUpperCase()}
+              <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-10'>
+                <ul className='list-none m-0 p-2 bg-gray-100 text-sm' onClick={sendVerifyOtp}>
+                  {
+                    !userData.isAccountVerified && <li className='py-1 px-2 hover:bg-gray-200 cursor-pointer'>
+                    Verify Email
+                  </li>
+                  }
+                  <li onClick={logout} className='py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10'>
+                    Logout
+                  </li>
+                </ul>
+              </div>
+            </div>:  <div className="hidden md:flex items-center space-x-4">
             <motion.div
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
@@ -80,7 +130,9 @@ const Navbar = () => {
                 Log In
               </Link>
             </motion.div>
-          </div>
+          </div>}
+          {/* Login/Signup Buttons */}
+         
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">

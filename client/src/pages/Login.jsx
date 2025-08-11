@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import assets from "../assets/assets.js";
 import { useNavigate } from "react-router-dom";
 import { AppContent } from "../context/AppContext.jsx";
@@ -8,9 +8,9 @@ import "../index.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { backendUrl, setIsLoggedIn } = useContext(AppContent);
+  const { backendUrl, setIsLoggedIn, userData, isLoggedIn } = useContext(AppContent);
 
-  const [state, setState] = useState("Sign Up");
+  const [state, setState] = useState("Log In");
   const [fullname, setfullname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -50,7 +50,9 @@ const Login = () => {
       toast.error(error.message);
     }
   };
-
+useEffect(()=>{
+    isLoggedIn && userData && userData && navigate('/')
+  }, [isLoggedIn, userData])
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-white to-[#B89F73]">
       {/* Animated Blurry Circles */}
