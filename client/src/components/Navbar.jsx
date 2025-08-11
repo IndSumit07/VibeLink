@@ -75,21 +75,9 @@ const Navbar = () => {
             >
               <Link
                 to="/login"
-                className="text-gray-800 hover:text-[#B89F73] px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 inline-block"
-              >
-                Log In
-              </Link>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="relative"
-            >
-              <Link
-                to="/signup"
                 className="bg-[#B89F73] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors duration-200 inline-block"
               >
-                Sign Up
+                Log In
               </Link>
             </motion.div>
           </div>
