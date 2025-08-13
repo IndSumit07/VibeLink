@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
+        gender:{
+            type: String,
+        },
+        bio: {
+            type: String,
+            default: ""
+        },
         verifyOtp: {
             type: String,
             default: ""

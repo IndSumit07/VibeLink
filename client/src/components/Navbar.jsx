@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate,  } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AppContent } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -8,49 +8,52 @@ import { toast } from 'react-toastify';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
   const navigate = useNavigate();
+  const { userData, backendUrl, setUserData, setIsLoggedIn } = useContext(AppContent);
+
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    setIsMobileMenuOpen(false);
+  }, [userData]);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const logout = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(backendUrl + '/api/auth/logout');
 
-  const {userData, backendUrl, setUserData, setIsLoggedIn} = useContext(AppContent);
-console.log(userData);
-
-const logout = async()=>{
-  try{
-    axios.defaults.withCredentials=true;
-    const {data} = await axios.post(backendUrl + "/api/auth/logout")
-
-    data.success && setIsLoggedIn(false)
-    data.success && setUserData(false)
-
-    navigate("/")
-  }catch(error){
-    toast.error(error.message)
-  }
-}
+      if (data.success) {
+        setIsLoggedIn(false);
+        setUserData(null);
+        navigate('/');
+        toast.success('Logged out successfully');
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   const sendVerifyOtp = async () => {
     try {
-      axios.defaults.withCredentials=true;
-
-      const {data} = await axios.post(backendUrl + "/api/auth/send-verify-otp");
-
-      if(data.success){
-        navigate("/email-verify");
-        toast.success(data.message)
-      }else{
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(backendUrl + '/api/auth/send-verify-otp');
+      if (data.success) {
+        navigate('/email-verify');
+        toast.success(data.message);
+      } else {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
-  }
+  };
+
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Features', path: '/features' },
@@ -77,76 +80,66 @@ const logout = async()=>{
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             {navItems.map((item) => (
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="relative"
+              <Link
+                key={item.name}
+                to={item.path}
+                className="text-gray-800 hover:text-[#B89F73] text-sm font-medium transition-all duration-300"
               >
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="text-gray-800 hover:text-[#B89F73] px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 relative group overflow-hidden inline-block"
-                >
-                  <span className="relative z-10">{item.name}</span>
-                  <motion.span
-                    className="absolute inset-0 bg-gradient-to-r from-[#B89F73] to-[#D4AF37] rounded-md"
-                    initial={{ scaleX: 0, originX: 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.3 }}
-                    style={{ zIndex: 0 }}
-                  />
-                  <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {item.name}
-                  </span>
-                </Link>
-              </motion.div>
+                {item.name}
+              </Link>
             ))}
           </div>
 
-            {userData ? <div className='w-8 h-8 flex justify-center items-center rounded-full bg-black text-white relative group cursor-pointer'>
-              {userData.fullname[0].toUpperCase()}
-              <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rounded pt-10'>
-                <ul className='list-none m-0 p-2 bg-gray-100 text-sm' onClick={sendVerifyOtp}>
-                  {
-                    !userData.isAccountVerified && <li className='py-1 px-2 hover:bg-gray-200 cursor-pointer'>
-                    Verify Email
-                  </li>
-                  }
-                  <li onClick={logout} className='py-1 px-2 hover:bg-gray-200 cursor-pointer pr-10'>
-                    Logout
-                  </li>
-                </ul>
+          {/* Desktop Right - Avatar if logged in, Login button if not */}
+          <div className="hidden md:flex items-center space-x-3">
+            {userData ? (
+              <div
+                className="w-8 h-8 flex justify-center items-center rounded-full bg-black text-white relative cursor-pointer"
+                onClick={() => setShowUserMenu((prev) => !prev)}
+              >
+                {userData.fullname?.[0]?.toUpperCase()}
+                {showUserMenu && (
+                  <div className="absolute right-0 top-10 z-10 text-black rounded shadow-lg bg-gray-100 text-sm min-w-[130px]">
+                    {!userData.isAccountVerified && (
+                      <button
+                        onClick={() => {
+                          sendVerifyOtp();
+                          setShowUserMenu(false);
+                        }}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-200"
+                      >
+                        Verify Email
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        logout();
+                        setShowUserMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>:  <div className="hidden md:flex items-center space-x-4">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="relative"
-            >
+            ) : (
               <Link
                 to="/login"
-                className="bg-[#B89F73] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90 transition-colors duration-200 inline-block"
+                className="bg-[#B89F73] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90"
               >
                 Log In
               </Link>
-            </motion.div>
-          </div>}
-          {/* Login/Signup Buttons */}
-         
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-800 hover:text-[#B89F73] focus:outline-none"
+              className="text-gray-800 hover:text-[#B89F73]"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              {isMobileMenuOpen ? '✖' : '☰'}
             </button>
           </div>
         </div>
@@ -161,28 +154,65 @@ const logout = async()=>{
           transition={{ duration: 0.3 }}
           className="md:hidden bg-[#F4F3EF] shadow-lg"
         >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="px-4 py-3 space-y-2">
+            {/* Mobile Avatar if logged in */}
+            {userData && (
+              <div
+                className="w-10 h-10 flex justify-center items-center rounded-full bg-black text-white relative cursor-pointer mb-3"
+                onClick={() => setShowUserMenu((prev) => !prev)}
+              >
+                {userData.fullname?.[0]?.toUpperCase()}
+                {showUserMenu && (
+                  <div className="absolute left-0 mt-12 z-10 text-black rounded shadow-lg bg-gray-100 text-sm min-w-[130px]">
+                    {!userData.isAccountVerified && (
+                      <button
+                        onClick={() => {
+                          sendVerifyOtp();
+                          setShowUserMenu(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-200"
+                      >
+                        Verify Email
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        logout();
+                        setShowUserMenu(false);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-gray-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Navigation Links */}
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className="text-gray-800 hover:text-[#B89F73] block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block py-2 text-gray-800 hover:text-[#B89F73] transition"
               >
                 {item.name}
               </Link>
             ))}
-            <Link
-              to="/login"
-              className="text-gray-800 hover:text-[#B89F73] block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
-            >
-              Log In
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-[#B89F73] text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-opacity-90 transition-colors duration-200"
-            >
-              Sign Up
-            </Link>
+
+            {/* Mobile Login button only if NOT logged in */}
+            {!userData && (
+              <Link
+                to="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block py-2 text-[#B89F73] border border-[#B89F73] rounded-md text-center hover:bg-[#B89F73] hover:text-white"
+              >
+                Log In
+              </Link>
+            )}
           </div>
         </motion.div>
       )}

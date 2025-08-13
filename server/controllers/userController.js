@@ -21,3 +21,13 @@ export const getUserData = async (req, res) =>{
         res.json({success: false, message: error.message})
     }
 }
+
+export const updateProfile = async (req, res)=>{
+    try {
+        const {profilePic} = req.body;
+
+        const userId = req.user._id;
+    } catch (error) {
+        
+    }
+}

@@ -57,9 +57,28 @@ const ResetPassword = () => {
 
   const onSubmitOtp = async (e) => {
     e.preventDefault();
-    const otpArray = inputRefs.current.map(e => e.value);
-    setOtp(otpArray.join(''));
-    setIsOtpSubmitted(true);
+    const otpArray = inputRefs.current.map(e => e.value).join('');
+
+    if (otpArray.length !== 6) {
+      toast.error('Please enter a valid 6-digit OTP');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await axios.post(backendUrl + "/api/auth/verify-reset-otp", { email, otp: otpArray });
+      if (data.success) {
+        setOtp(otpArray);
+        setIsOtpSubmitted(true);
+        toast.success(data.message || "OTP verified successfully");
+      } else {
+        toast.error(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onSubmitNewPassword = async (e) => {
@@ -68,7 +87,7 @@ const ResetPassword = () => {
     try {
       const { data } = await axios.post(backendUrl + "/api/auth/reset-password", { email, otp, newPassword });
       data.success ? toast.success(data.message) : toast.error(data.message);
-      if (data.success) navigate('/login'); // Fixed spelling
+      if (data.success) navigate('/login');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -77,7 +96,8 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-white to-[#B89F73]">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden 
+                    bg-gradient-to-br from-white to-[#B89F73] px-4 sm:px-0">
       {/* Floating Blobs */}
       <div className="absolute top-10 left-10 w-72 h-72 bg-[#e0c52b] rounded-full blur-[100px] animate-float1"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#d99829] rounded-full blur-[100px] animate-float2"></div>
@@ -87,15 +107,15 @@ const ResetPassword = () => {
 
       {/* Loader */}
       {loading && (
-        <div className="absolute top-5 right-5 flex items-center gap-2 text-[#B89F73]">
-          <div className="w-4 h-4 border-2 border-t-transparent border-[#B89F73] rounded-full animate-spin"></div>
-          <span className="text-sm">Processing...</span>
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="w-12 h-12 border-4 border-white/30 border-t-white/90 rounded-full animate-spin"></div>
+          <p className="mt-4 text-white font-semibold">Processing...</p>
         </div>
       )}
 
       {/* Email Form */}
       {!isEmailSent && (
-        <form onSubmit={onSubmitEmail} className="relative bg-white p-8 sm:p-10 rounded-3xl shadow-xl w-full sm:w-96 z-10 animate-fadeUp text-sm">
+        <form onSubmit={onSubmitEmail} className={`relative bg-white/30 backdrop-blur-xl border border-[#B89F73]/30 shadow-2xl p-10 rounded-3xl w-full sm:w-[400px] z-10 animate-fadeUp ${loading ? "opacity-50 pointer-events-none" : ""}`}>
           <h1 className="text-[#B89F73] text-2xl font-bold text-center mb-4">Reset Password</h1>
           <p className="text-center mb-6 text-gray-500">Enter your registered email address</p>
           <div className="mb-5 flex items-center gap-3 w-full px-5 py-3 rounded-full bg-[#F8F8F8] border border-gray-200 focus-within:border-[#B89F73] transition">
@@ -121,7 +141,7 @@ const ResetPassword = () => {
 
       {/* OTP Form */}
       {!isOtpSubmitted && isEmailSent && (
-        <form onSubmit={onSubmitOtp} className="relative bg-white p-10 rounded-3xl shadow-xl w-full sm:w-96 z-10 animate-fadeUp text-sm">
+        <form onSubmit={onSubmitOtp} className={`relative bg-white/30 backdrop-blur-xl border border-[#B89F73]/30 shadow-2xl p-10 rounded-3xl w-full sm:w-[400px] z-10 animate-fadeUp ${loading ? "opacity-50 pointer-events-none" : ""}`}>
           <h1 className="text-[#B89F73] text-2xl font-bold text-center mb-4">Reset Password OTP</h1>
           <p className="text-center mb-6 text-gray-500">Enter the 6-digit code sent to your email</p>
           <div className="flex justify-between mb-8" onPaste={handlePaste}>
@@ -149,7 +169,7 @@ const ResetPassword = () => {
 
       {/* New Password Form */}
       {isOtpSubmitted && isEmailSent && (
-        <form onSubmit={onSubmitNewPassword} className="relative bg-white p-8 sm:p-10 rounded-3xl shadow-xl w-full sm:w-96 z-10 animate-fadeUp text-sm">
+        <form onSubmit={onSubmitNewPassword} className={`relative bg-white/30 backdrop-blur-xl border border-[#B89F73]/30 shadow-2xl p-10 rounded-3xl w-full sm:w-[400px] z-10 animate-fadeUp ${loading ? "opacity-50 pointer-events-none" : ""}`}>
           <h1 className="text-[#B89F73] text-2xl font-bold text-center mb-4">New Password</h1>
           <p className="text-center mb-6 text-gray-500">Enter your new password</p>
           <div className="mb-5 flex items-center gap-3 w-full px-5 py-3 rounded-full bg-[#F8F8F8] border border-gray-200 focus-within:border-[#B89F73] transition">
