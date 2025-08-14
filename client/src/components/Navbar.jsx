@@ -174,7 +174,7 @@ const Navbar = () => {
                         className="w-full text-left px-3 py-2 hover:bg-gray-200"
                       >
                         Verify Email
-                      </button>
+                      </button> 
                     )}
                     <button
                       onClick={() => {

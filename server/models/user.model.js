@@ -23,12 +23,21 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
-        gender:{
-            type: String,
-        },
-        bio: {
+        title: {
             type: String,
             default: ""
+        },
+        collegeName:{
+            type: String,
+            default: ""
+        },
+        followers:{
+            type: Number,
+            default: 0
+        },
+        following:{
+            type:Number,
+            default: 0
         },
         verifyOtp: {
             type: String,
