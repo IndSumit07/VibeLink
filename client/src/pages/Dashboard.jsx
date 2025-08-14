@@ -64,7 +64,7 @@ export default function Dashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormData({
-      ...userData,
+      ...userData, 
       fullname: formData.fullname,
       bio: formData.bio,
       title: formData.title,
