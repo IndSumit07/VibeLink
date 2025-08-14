@@ -7,6 +7,7 @@ import ResetPassword from './pages/ResetPassword';
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css'
 import Dashboard from './pages/Dashboard';
+
 const App = () => {
   return (
     <div>
