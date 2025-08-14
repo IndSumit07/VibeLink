@@ -45,6 +45,7 @@ const Login = () => {
         if (data.success) {
           setIsLoggedIn(true);
           navigate("/");
+          location.reload();
         } else {
           toast.error(data.message);
         }

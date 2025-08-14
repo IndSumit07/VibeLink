@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { AppContent } from '../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const dashboardBg = '#F4F3EF';
 const accentColor = '#B89F73';
@@ -33,7 +34,7 @@ const buddies = [
 ];
 
 export default function Dashboard() {
-  const { userData, setUserData, backendUrl } = useContext(AppContent);
+  const { userData, setUserData, backendUrl, setIsLoggedIn } = useContext(AppContent);
 
   const user = {
     avatar: userData.profileImage,
@@ -59,6 +60,9 @@ export default function Dashboard() {
     location: userData.collegeName
   });
 
+  const navigate = useNavigate();
+
+
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
@@ -71,7 +75,7 @@ export default function Dashboard() {
       location: formData.location
     });
 
-    const data = await axios.post(backendUrl + "/api/user/update-profile", {fullname: formData.fullname, bio: formData.bio, title: formData.title, collegeName: formData.location  })
+    const {data} = await axios.post(backendUrl + "/api/user/update-profile", {fullname: formData.fullname, bio: formData.bio, title: formData.title, collegeName: formData.location  })
 
     if(data.success){
       toast.success(data.message)
@@ -80,6 +84,24 @@ export default function Dashboard() {
     }
     setIsEditing(false);
   };
+
+  const logout = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(backendUrl + '/api/auth/logout');
+
+      if (data.success) {
+        setIsLoggedIn(false);
+        setUserData(null);
+        navigate('/');
+        toast.success('Logged out successfully');
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  
 
   return (
     <div style={{
@@ -121,6 +143,17 @@ export default function Dashboard() {
               onClick={() => setIsEditing(true)}
             >
               Edit Profile
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                background: accentColor, color: '#fff', border: 'none',
+                padding: '6px 18px', borderRadius: 14, cursor: 'pointer', fontWeight: 500
+              }}
+              onClick={logout}
+            >
+              Logout
             </motion.button>
           </div>
         </div>

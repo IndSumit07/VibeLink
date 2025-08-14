@@ -51,8 +51,8 @@ export const updateProfile = async (req, res)=>{
         if(bio) user.bio=bio;
 
         await user.save();
-        return res.json({sucess: true, message: "Profile updated successfully"})
+        res.json({success: true, message: "Profile updated successfully"})
     } catch (error) {
-        return res.json({success: false, message: error.message});
+        res.json({success: false, message: error.message});
     }
 }

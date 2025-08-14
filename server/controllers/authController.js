@@ -242,7 +242,7 @@ export const resetPassword = async(req, res)=>{
     try {
         
         const user = await User.findOne({email});
-
+        
         if(!user){
             return res.json({success: false, message: "User not found"});
         }
@@ -253,6 +253,11 @@ export const resetPassword = async(req, res)=>{
 
         if(user.resetOtpExpireAt<Date.now()){
             return res.json({success: false, message: "OTP Expired"});
+        }
+
+        const checkPassword = bcrypt.compare(newPassword, user.password);
+        if(checkPassword){
+            return res.json({success: false, message: "You cannot enter a old password"});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
