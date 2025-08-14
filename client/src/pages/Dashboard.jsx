@@ -1,22 +1,11 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
+import { AppContent } from '../context/AppContext';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const dashboardBg = '#F4F3EF';
 const accentColor = '#B89F73';
-
-const user = {
-  avatar: 'https://i.pravatar.cc/100',
-  name: 'Ashutosh Gupta',
-  bio: 'Hi! I am Ashutosh, a Machine Learning enthusiast and Event Planner at GLA University. I love working on coding projects, participating in hackathons, and building tech communities.',
-  location: 'GLA University',
-  followers: 120,
-  following: 80,
-  listedServices: 6,
-  bookedServices: 3,
-  uploadedNotes: 14,
-  eventsJoined: 5,
-  eventsCreated: 2,
-};
 
 const services = [
   { title: 'Laptop Repair', category: 'Repair', price: '₹200/hr', status: 'Available', bookings: 12, ratings: 4.7, feedback: 32 },
@@ -44,6 +33,54 @@ const buddies = [
 ];
 
 export default function Dashboard() {
+  const { userData, setUserData, backendUrl } = useContext(AppContent);
+
+  const user = {
+    avatar: userData.profileImage,
+    name: userData.fullname,
+    bio: userData.bio,
+    location: userData.collegeName,
+    followers: userData.followers,
+    following: userData.following,
+    listedServices: 6,
+    bookedServices: 3,
+    uploadedNotes: 14,
+    eventsJoined: 5,
+    eventsCreated: 2,
+    title: userData.title,
+  };
+
+  // Modal + form state
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    fullname: userData.fullname,
+    bio: userData.bio,
+    title: userData.title,
+    location: userData.collegeName
+  });
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormData({
+      ...userData,
+      fullname: formData.fullname,
+      bio: formData.bio,
+      title: formData.title,
+      location: formData.location
+    });
+
+    const data = await axios.post(backendUrl + "/api/user/update-profile", {fullname: formData.fullname, bio: formData.bio, title: formData.title, collegeName: formData.location  })
+
+    if(data.success){
+      toast.success(data.message)
+    }else{
+      toast.error(data.message)
+    }
+    setIsEditing(false);
+  };
+
   return (
     <div style={{
       background: `linear-gradient(135deg, ${dashboardBg} 80%, #fefefe 100%)`,
@@ -60,23 +97,31 @@ export default function Dashboard() {
           boxShadow: '0 6px 18px rgba(184,159,115,0.08)', alignItems: 'center', marginBottom: 28
         }}
       >
-        <motion.img
-          whileHover={{ scale: 1.05 }}
-          src={user.avatar} alt="Avatar"
-          style={{ width: 78, height: 78, borderRadius: '50%', marginRight: 27, border: `4px solid ${accentColor}` }}
-        />
+        <div className='w-32 h-32 p-5 bg-[#493924] rounded-full flex justify-center items-center mr-5'>
+          <div className='text-white text-5xl'>
+            {
+              user.avatar
+            }
+          </div>
+        </div>
         <div style={{ flex: 1 }}>
           <h1 style={{ margin: '0 0 8px', fontSize: 28 }}>{user.name}</h1>
-          <div style={{ color: accentColor, marginBottom: 6 }}>Machine Learning | Event Planner</div>
+          <div style={{ color: accentColor, marginBottom: 6 }}>{user.title}</div>
           <div style={{ marginBottom: 8 }}>📍 {user.location}</div>
           <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-            <span>👥 <b>{user.followers}</b> Followers</span>
-            <span>👤 <b>{user.following}</b> Following</span>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            <span>👥 <b>{user.followers}</b></span>
+            <span>👤 <b>{user.following}</b></span>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               style={{
                 background: accentColor, color: '#fff', border: 'none',
                 padding: '6px 18px', borderRadius: 14, cursor: 'pointer', fontWeight: 500
-              }}>Edit Profile</motion.button>
+              }}
+              onClick={() => setIsEditing(true)}
+            >
+              Edit Profile
+            </motion.button>
           </div>
         </div>
         <div>
@@ -238,6 +283,74 @@ export default function Dashboard() {
         <div>Get Our App: Android | iOS</div>
       </footer>
 
+      {/* Edit Profile Modal */}
+      {isEditing && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          style={{
+            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+            background: 'rgba(0,0,0,0.4)', display: 'flex',
+            justifyContent: 'center', alignItems: 'center', zIndex: 1000
+          }}
+        >
+          <div style={{
+            background: '#fff', padding: '20px 30px', borderRadius: 12,
+            width: '400px', boxShadow: '0 6px 18px rgba(0,0,0,0.2)'
+          }}>
+            <h2 style={{ marginBottom: 12 }}>Edit Profile</h2>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: 10 }}>
+                <label>Full Name:</label>
+                <input
+                  type="text"
+                  name="fullname"
+                  value={formData.fullname}
+                  onChange={handleChange}
+                  style={{ width: '100%', padding: 6 }}
+                />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Title:</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  style={{ width: '100%', padding: 6 }}
+                />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Location:</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  style={{ width: '100%', padding: 6 }}
+                />
+              </div>
+              <div style={{ marginBottom: 10 }}>
+                <label>Bio:</label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleChange}
+                  rows={3}
+                  style={{ width: '100%', padding: 6 }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button type="button" onClick={() => setIsEditing(false)} style={{
+                  padding: '6px 14px', borderRadius: 8, border: '1px solid #ccc'
+                }}>Cancel</button>
+                <button type="submit" style={{
+                  padding: '6px 14px', borderRadius: 8, background: accentColor, color: '#fff', border: 'none'
+                }}>Save</button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

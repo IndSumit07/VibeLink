@@ -23,13 +23,17 @@ const userSchema = new mongoose.Schema(
             required: true,
             trim: true
         },
+        bio:{
+            type: String,
+            default: "Not set"
+        },
         title: {
             type: String,
-            default: ""
+            default: "Not set"
         },
         collegeName:{
             type: String,
-            default: ""
+            default: "Not set"
         },
         followers:{
             type: Number,

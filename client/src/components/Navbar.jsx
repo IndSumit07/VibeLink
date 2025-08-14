@@ -93,36 +93,17 @@ const Navbar = () => {
           {/* Desktop Right - Avatar if logged in, Login button if not */}
           <div className="hidden md:flex items-center space-x-3">
             {userData ? (
+              <Link to="/dashboard">
+              
               <div
                 className="w-8 h-8 flex justify-center items-center rounded-full bg-black text-white relative cursor-pointer"
                 onClick={() => setShowUserMenu((prev) => !prev)}
               >
-                {userData.fullname?.[0]?.toUpperCase()}
-                {showUserMenu && (
-                  <div className="absolute right-0 top-10 z-10 text-black rounded shadow-lg bg-gray-100 text-sm min-w-[130px]">
-                    {!userData.isAccountVerified && (
-                      <button
-                        onClick={() => {
-                          sendVerifyOtp();
-                          setShowUserMenu(false);
-                        }}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-200"
-                      >
-                        Verify Email
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        logout();
-                        setShowUserMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-200"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+                {userData.profileImage}
+                
               </div>
+              
+              </Link>
             ) : (
               <Link
                 to="/login"
