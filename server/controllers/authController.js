@@ -8,7 +8,7 @@ export const register = async (req, res)=>{
     const {fullname, username, email, password} = req.body;
 
     if(!fullname || !username || !email || !password){
-        return res.json({success: false, message: "Missing Detais"});
+        return res.json({success: false, message: "Missing Details"});
     }
 
     try {

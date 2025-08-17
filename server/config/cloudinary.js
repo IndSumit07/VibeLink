@@ -1,5 +1,4 @@
-import {v2 as clodinary} from "cloudinary";
-import fs from "fs";
+import {v2 as cloudinary} from "cloudinary";
 
  cloudinary.config({ 
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
@@ -7,21 +6,5 @@ import fs from "fs";
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-export default clodinary
 
-// const uploadOnClodinary = async(localFilePath)=>{
-//     try {
-//         if(!localFilePath){
-//             return res.json({success: false, message: "Path not found"})
-//         }
-//         const response = await clodinary.uploader(localFilePath, {
-//             resource_type: "auto"
-//         })
-
-//         res.json({success: true, message: "File uploaded successfully", url: response.url})
-        
-//     } catch (error) {
-//         fs.unlinkSync(localFilePath);
-//         return res.json({success: false, message: error.message});
-//     }
-// }
+export default cloudinary

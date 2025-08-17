@@ -79,6 +79,7 @@ export default function Dashboard() {
 
     if(data.success){
       toast.success(data.message)
+      location.reload();
     }else{
       toast.error(data.message)
     }
@@ -118,6 +119,7 @@ export default function Dashboard() {
           display: 'flex', background: dashboardBg, padding: 32, borderRadius: 18,
           boxShadow: '0 6px 18px rgba(184,159,115,0.08)', alignItems: 'center', marginBottom: 28
         }}
+        
       >
         <div className='w-32 h-32 p-5 bg-[#493924] rounded-full flex justify-center items-center mr-5'>
           <div className='text-white text-5xl'>
